@@ -1,0 +1,45 @@
+version: "3.9"
+services:
+  node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cdbrag-node
+    command: npm run dev
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - postgres
+    ports:
+      - "5000:5000"
+      - "9229:9229"
+    volumes:
+      - .:/home/node/app
+      - cdb-node_modules:/home/node/app/node_modules
+    networks:
+      - app
+    environment:
+      - NODE_ENV=development
+      - POSTGRES_HOSTNAME=postgres
+    working_dir: /home/node/app
+  postgres:
+    image: postgres
+    container_name: cdbrag-postgres
+    volumes:
+      - cdb-data:/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app
+    environment:
+      - POSTGRES_USER=cdb_dev
+      - POSTGRES_PASSWORD=cdb_Dev@User
+      - POSTGRES_HOSTNAME=postgres
+volumes:
+  cdb-data:
+    external: true
+  cdb-node_modules:
+    external: true
+networks:
+  app:
+    name: app

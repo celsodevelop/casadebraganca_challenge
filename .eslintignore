@@ -1,0 +1,13 @@
+/*.js’
+node_modules
+dist
+tsconfig.json
+package*.json
+.prettierrc
+.editorconfig
+.prettierignore
+.gitignore
+.env
+docker-compose.yml
+Dockerfile
+tsconfig*.json

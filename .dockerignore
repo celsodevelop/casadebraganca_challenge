@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+Dockerfile
+docker-compose.yml
+.dockerignore
+.gitignore
+.git
+README.md
+.prettierrc
+.editorconfig
+.prettierignore
+.env
+docker-compose.yml
+Dockerfile
+.eslintrc.json
+.eslintignore
