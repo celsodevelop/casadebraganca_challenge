@@ -27,9 +27,7 @@ export default AppDataSource.initialize()
         route.route,
         (req: Request, res: Response, next: NextFunction) => {
           // eslint-disable-next-line new-cap
-          const result = new route.controller()[
-            route.action as 'all' | 'one' | 'save' | 'remove'
-          ](req, res, next);
+          const result = new route.controller()[route.action as 'all'](req, res, next);
           if (result instanceof Promise) {
             result
               .then((resolved) =>
