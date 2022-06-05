@@ -35,6 +35,7 @@ services:
       - POSTGRES_USER=cdb_dev
       - POSTGRES_PASSWORD=cdb_Dev@User
       - POSTGRES_HOSTNAME=postgres
+      - POSTGRES_DB=cdbrag-db
 volumes:
   cdb-data:
     external: true

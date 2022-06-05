@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules ./src/index.ts",
+    "typeorm": "typeorm-ts-node-esm -d ./src/config/data-source.ts",
     "start": "npm run build && node ./dist/index.js",
     "build": "tsc",
     "test": "mocha ./src/tests/**/*$NAME*.{test,spec}.js --exit"
@@ -41,7 +42,10 @@
     "ajv-errors": "^3.0.0",
     "body-parser": "^1.20.0",
     "express": "^4.18.1",
-    "http-status-codes": "^2.2.0"
+    "http-status-codes": "^2.2.0",
+    "pg": "^8.7.3",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.3.6"
   },
   "private": true
 }
