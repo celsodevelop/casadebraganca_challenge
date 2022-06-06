@@ -3,10 +3,11 @@ import express, { NextFunction, Request, Response, Application } from 'express';
 import { AppDataSource } from './config/data-source';
 import { Routes } from './routes';
 import startServer from './bin/server';
+import errorMiddleware from './errors/errorMiddleware';
 
 export default AppDataSource.initialize()
   .then(() => {
-    // create express app
+    // CREATE EXPRESS APP
     const app = express();
 
     // SETUP
@@ -21,13 +22,17 @@ export default AppDataSource.initialize()
       next();
     });
 
-    // register express routes
+    // REGISTER ROUTES
     Routes.forEach((route) => {
       (app as Application)[route.method as 'get' | 'put' | 'delete'](
         route.route,
         (req: Request, res: Response, next: NextFunction) => {
           // eslint-disable-next-line new-cap
-          const result = new route.controller()[route.action as 'all'](req, res, next);
+          const result = new route.controller()[route.action as 'all' | 'one'](
+            req,
+            res,
+            next,
+          );
           if (result instanceof Promise) {
             result
               .then((resolved) =>
@@ -43,7 +48,11 @@ export default AppDataSource.initialize()
       );
     });
 
-    // start express server
+    // ERROR MIDDLEWARE
+
+    app.use(errorMiddleware);
+
+    // START EXPRESS SERVER
     startServer(app);
   })
   .catch((err) => console.log('Error at database connection: ', err));

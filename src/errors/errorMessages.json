@@ -1,0 +1,7 @@
+{
+  "INTERNAL_ERROR": "Sorry, An Internal error have been occurred.",
+  "INVALID_PAGE": "Sorry, you have entered a invalid page number",
+  "UNHANDLED_REJECTION": "There was an unhandled rejection",
+  "INVALID_CARD": "Sorry, you have entered a invalid id",
+  "UNCAUGHT_EXCEPTION": "There was an uncaught error"
+}

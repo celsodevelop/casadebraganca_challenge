@@ -1,28 +1,42 @@
 import { NextFunction, Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
+import AppError from '../errors/AppError';
+import errorMessages from '../errors/errorMessages.json';
 import { CardRepository } from '../model/Card.repository';
+import { checkUUIDv4 } from '../utils/uuidCheck';
 
 export class CardController {
   private cardRepository = CardRepository;
 
-  async all(request: Request, _response: Response, _next: NextFunction) {
-    let page;
+  async all(request: Request, response: Response, next: NextFunction) {
+    let cardsPage;
     const { page: reqPage = 0 } = request.query;
-    if (typeof reqPage === 'string') {
-      page = parseInt(reqPage, 10) - 1;
-    } else {
-      return this.cardRepository.findAllCards();
+    try {
+      if (typeof reqPage === 'string') {
+        const page = parseInt(reqPage, 10) - 1;
+        cardsPage = await this.cardRepository.findAllCards(page);
+      } else {
+        cardsPage = await this.cardRepository.findAllCards();
+      }
+      response.status(StatusCodes.OK);
+      return cardsPage;
+    } catch (error) {
+      return next(error);
     }
-    return this.cardRepository.findAllCards(page);
   }
 
-  // async one(request: Request, _response: Response, _next: NextFunction) {
-  //   if (typeof request.params.id === 'string') {
-  //     return this.cardRepository.findOne({
-  //       where: { id: request.params.id },
-  //     });
-  //   }
-  //   return null;
-  // }
+  async one(request: Request, response: Response, next: NextFunction) {
+    try {
+      if (!checkUUIDv4(request.params.id)) {
+        throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD);
+      } else {
+        response.status(StatusCodes.OK);
+        return await this.cardRepository.findOneCard(request.params.id);
+      }
+    } catch (error) {
+      return next(error);
+    }
+  }
 
   // async save(request: Request, _response: Response, _next: NextFunction) {
   //   return this.cardRepository.save(request.body);
