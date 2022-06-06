@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules ./src/index.ts",
-    "typeorm": "typeorm-ts-node-esm -d ./src/config/data-source.ts",
+    "typeorm": "typeorm-ts-node-esm -d ./src/db/config/data-source.ts",
     "start": "npm run build && node ./dist/index.js",
     "build": "tsc",
     "test": "mocha ./src/tests/**/*$NAME*.{test,spec}.js --exit"
