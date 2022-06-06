@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
-import { AppDataSource } from '../config/data-source';
-import { Card } from '../db/entity/Card';
+import { AppDataSource } from '../db/config/data-source';
+import { Card } from '../db/entity/Card.entity';
 import AppError from '../errors/AppError';
 import errorMessages from '../errors/errorMessages.json';
 
@@ -23,8 +23,21 @@ export const CardRepository = AppDataSource.getRepository(Card).extend({
       where: { id },
     });
     if (!card) {
-      throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD);
+      throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD_ID);
     }
     return card;
+  },
+  async saveCard(newCard: Card) {
+    if (!newCard) {
+      throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD);
+    }
+    const card = new Card();
+    card.name = newCard.name;
+    card.email = newCard.email;
+    card.company = newCard.company;
+    card.phoneNumber = newCard.phoneNumber;
+    card.jobTitle = newCard.jobTitle;
+    card.photo = newCard?.photo;
+    return this.save(card);
   },
 });

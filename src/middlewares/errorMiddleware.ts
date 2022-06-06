@@ -2,9 +2,9 @@
 // de rastreio de logs ou gerenciador de processos para maior controle em produção
 
 import { ErrorRequestHandler } from 'express';
-import AppError from './AppError';
-import errorHandler from './errorHandler';
-import errorMessages from './errorMessages.json';
+import AppError from '../errors/AppError';
+import errorHandler from '../errors/errorHandler';
+import errorMessages from '../errors/errorMessages.json';
 
 // Precisamos de 4 variáveis no middleware de erro, logo desabilita regra linter
 

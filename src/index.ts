@@ -1,9 +1,9 @@
 import bodyParser from 'body-parser';
 import express, { NextFunction, Request, Response, Application } from 'express';
-import { AppDataSource } from './config/data-source';
-import { Routes } from './routes';
+import { AppDataSource } from './db/config/data-source';
+import Routes from './routes';
 import startServer from './bin/server';
-import errorMiddleware from './errors/errorMiddleware';
+import errorMiddleware from './middlewares/errorMiddleware';
 
 export default AppDataSource.initialize()
   .then(() => {
@@ -23,30 +23,7 @@ export default AppDataSource.initialize()
     });
 
     // REGISTER ROUTES
-    Routes.forEach((route) => {
-      (app as Application)[route.method as 'get' | 'put' | 'delete'](
-        route.route,
-        (req: Request, res: Response, next: NextFunction) => {
-          // eslint-disable-next-line new-cap
-          const result = new route.controller()[route.action as 'all' | 'one'](
-            req,
-            res,
-            next,
-          );
-          if (result instanceof Promise) {
-            result
-              .then((resolved) =>
-                resolved !== null && resolved !== undefined
-                  ? res.send(resolved)
-                  : undefined,
-              )
-              .catch((err) => console.log('Error at routes register: ', err));
-          } else if (result !== null && result !== undefined) {
-            res.json(result);
-          }
-        },
-      );
-    });
+    app.use('/cards', Routes.card)
 
     // ERROR MIDDLEWARE
 
