@@ -9,6 +9,7 @@ export const AppDataSource = new DataSource({
   password: 'cdb_Dev@User',
   database: 'cdbrag-db',
   synchronize: false,
+  cache: true,
   logging: false,
   entities: ['src/db/entity/**/*.ts'],
   migrations: ['src/db/migration/**/*.ts'],
