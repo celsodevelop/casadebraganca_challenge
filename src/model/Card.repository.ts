@@ -8,15 +8,24 @@ const RESULTS_PER_PAGE = 20;
 
 export const CardRepository = AppDataSource.getRepository(Card).extend({
   async findAllCards(page = 0) {
-    const [data, total] = await this.findAndCount({
+    const fromIdxItem = RESULTS_PER_PAGE * page;
+    const [cards, total] = await this.findAndCount({
       take: RESULTS_PER_PAGE,
-      skip: RESULTS_PER_PAGE * page,
+      skip: fromIdxItem,
     });
     const totalPages = Math.floor(total / RESULTS_PER_PAGE);
-    if (page > totalPages && typeof errorMessages.INVALID_PAGE === 'string') {
+
+    if (page > totalPages) {
       throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_PAGE);
     }
-    return { data, last_page: totalPages + 1, this_page: page + 1 };
+    const pageInfo = {
+      last_page: totalPages + 1,
+      page_last_idx_item: Math.min(fromIdxItem + RESULTS_PER_PAGE, total),
+      results_per_page: RESULTS_PER_PAGE,
+      total_cards: total,
+    };
+
+    return { cards, page_info: pageInfo };
   },
   async findOneCard(id: string) {
     const card = await this.findOne({

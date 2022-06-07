@@ -4,6 +4,7 @@ import { Card } from '../db/entity/Card.entity';
 import AppError from '../errors/AppError';
 import errorMessages from '../errors/errorMessages.json';
 import * as CardServices from '../service/Card.services';
+import { parseCardToResponse } from '../utils/parseCardToResponse';
 import { checkUUIDv4 } from '../utils/uuidCheck';
 
 export const all = async (request: Request, response: Response, next: NextFunction) => {
@@ -16,8 +17,13 @@ export const all = async (request: Request, response: Response, next: NextFuncti
     } else {
       cardsPage = await CardServices.allSvc(Number(reqPage));
     }
+    const parsedCards = cardsPage.cards.map((card) => parseCardToResponse(card));
+    const parsedResponse = {
+      ...cardsPage,
+      cards: parsedCards,
+    };
     response.status(StatusCodes.OK);
-    return response.json(cardsPage);
+    return response.json(parsedResponse);
   } catch (error) {
     return next(error);
   }
@@ -30,7 +36,7 @@ export const one = async (request: Request, response: Response, next: NextFuncti
     } else {
       const selectedCard = await CardServices.oneSvc(request.params.id);
       response.status(StatusCodes.OK);
-      return response.json(selectedCard);
+      return response.json(parseCardToResponse(selectedCard));
     }
   } catch (error) {
     return next(error);
@@ -49,8 +55,9 @@ export const save = async (request: Request, response: Response, next: NextFunct
       photo: request.file?.path,
     } as Card;
     const createdCard = await CardServices.saveSvc(newCard);
+
     response.status(StatusCodes.ACCEPTED);
-    return response.json(createdCard);
+    return response.json(parseCardToResponse(createdCard));
   } catch (error) {
     return next(error);
   }
