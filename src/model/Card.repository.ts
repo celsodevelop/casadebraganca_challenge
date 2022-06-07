@@ -23,7 +23,6 @@ export const CardRepository = AppDataSource.getRepository(Card).extend({
       where: { id },
     });
     if (!card) {
-      console.log('erro no model: ', card);
       throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD_ID);
     }
     return card;
