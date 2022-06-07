@@ -16,7 +16,10 @@ export const oneSvc = async (cardId: string) => {
   return selectedCard;
 };
 
-export const saveSvc = async (card: Card) => {
+export const saveSvc = async (card: Card | Card[]) => {
+  if (Array.isArray(card)) {
+    return Promise.all(card.map(async (cardToSave) => CardModel.saveCard(cardToSave)));
+  }
   return CardModel.saveCard(card);
 };
 

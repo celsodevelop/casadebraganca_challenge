@@ -1,6 +1,11 @@
+import * as csv from '@fast-csv/parse';
 import { NextFunction, Request, Response } from 'express';
+import { pipeline } from 'stream/promises';
+import { createReadStream, unlinkSync } from 'fs';
 import { StatusCodes } from 'http-status-codes';
 import { Card } from '../db/entity/Card.entity';
+import AppError from '../errors/AppError';
+import errorMessages from '../errors/errorMessages.json';
 import * as CardServices from '../service/Card.service';
 import { parseCardToResponse } from '../utils/parseCardToResponse';
 import { checkUUIDv4 } from '../utils/uuidCheck';
@@ -47,7 +52,7 @@ export const save = async (request: Request, response: Response, next: NextFunct
       phoneNumber,
       photo: request.file?.path,
     } as Card;
-    const createdCard = await CardServices.saveSvc(newCard);
+    const createdCard = (await CardServices.saveSvc(newCard)) as Card;
     return response.status(StatusCodes.ACCEPTED).json(parseCardToResponse(createdCard));
   } catch (error) {
     return next(error);
@@ -106,6 +111,42 @@ export const editPhoto = async (
     response.locals.oldCardData = cardToEditPhoto;
     // deixa o próximo middleware lidar com a remoção do arquivo anterior da nuvem
     return next();
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const importCsv = async (
+  request: Request,
+  response: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { file } = request;
+    const importedCards: Card[] = [];
+    await pipeline(
+      createReadStream(file?.path || ''),
+      csv
+        .parse<Card, Card>({ headers: true, discardUnmappedColumns: true })
+        .transform((data: Card): Partial<Card> => {
+          if (!data.photo) {
+            const { photo, ...dataWithoutPhoto } = data;
+            return dataWithoutPhoto;
+          }
+          return data;
+        })
+        .on('error', () =>
+          next(new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD)),
+        )
+        .on('data', (record: Card) => {
+          importedCards.push(record);
+        })
+        .on('end', () => {
+          unlinkSync(file?.path || ''); // delete temp csv file
+        }),
+    );
+    const createdImportedCards = await CardServices.saveSvc(importedCards);
+    return response.status(StatusCodes.CREATED).json(createdImportedCards);
   } catch (error) {
     return next(error);
   }
