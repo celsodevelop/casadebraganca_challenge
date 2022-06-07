@@ -21,6 +21,9 @@ export const saveSvc = async (card: Card) => {
 };
 
 export const editSvc = async (card: Card, newInfo: Partial<Card>) => {
+  if (Object.keys(newInfo).length === 0) {
+    throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD);
+  }
   const cardEditedInfo = await CardModel.editCard(card, newInfo);
   if (!cardEditedInfo.affected) {
     throw new AppError(StatusCodes.NOT_MODIFIED, errorMessages.CARD_NOT_MODIFIED);

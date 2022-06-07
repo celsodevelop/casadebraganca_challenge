@@ -94,15 +94,16 @@ export const editPhoto = async (
   try {
     checkUUIDv4(request.params.id);
     const cardToEditPhoto = await CardServices.oneSvc(request.params.id);
-    const newPhotoField = {
-      photo: request.file?.path || null,
-    };
-    await CardServices.editSvc(cardToEditPhoto, newPhotoField);
+    let editedCard;
+    if (request.file?.path) {
+      const photo = { photo: request.file.path };
+      await CardServices.editSvc(cardToEditPhoto, { ...photo });
+      editedCard = parseCardToResponse({ ...cardToEditPhoto, ...photo });
+    } else {
+      editedCard = { ...parseCardToResponse(cardToEditPhoto), photo: null };
+    }
+    response.locals.newCardData = editedCard;
     response.locals.oldCardData = cardToEditPhoto;
-    response.locals.newCardData = parseCardToResponse({
-      ...cardToEditPhoto,
-      ...newPhotoField,
-    });
     // deixa o próximo middleware lidar com a remoção do arquivo anterior da nuvem
     return next();
   } catch (error) {

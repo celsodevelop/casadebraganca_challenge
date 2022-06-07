@@ -21,5 +21,5 @@ export class Card {
   company!: string;
 
   @Column({ nullable: true })
-  photo!: string | null;
+  photo!: string;
 }
