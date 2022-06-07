@@ -10,6 +10,12 @@ router.get('/', CardController.all);
 router.get('/:id', CardController.one);
 router.post('/', uploadCardPhoto.single('card-image'), CardController.save);
 router.put('/:id', CardController.edit);
+router.put(
+  '/:id/photo',
+  uploadCardPhoto.single('card-image'),
+  CardController.editPhoto,
+  removePhoto,
+);
 router.delete('/:id', CardController.remove, removePhoto);
 
 export default router;

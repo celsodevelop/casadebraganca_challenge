@@ -5,14 +5,14 @@ import { removePhotoFromCloud } from '../utils/removePhotoFromCloud';
 
 export const removePhoto = async (req: Request, res: Response, next: NextFunction) => {
   const {
-    locals: { removedCard = new Card() },
-  } = res as Response & { locals: { removedCard: Card } };
+    locals: { oldCardData = new Card(), newCardData },
+  } = res as Response & { locals: { oldCardData: Card; newCardData?: Card } };
   try {
-    if (!removedCard?.photo) {
-      return res.status(StatusCodes.ACCEPTED).json({ result: 'ok' });
+    if (!oldCardData?.photo) {
+      return res.status(StatusCodes.ACCEPTED).json(newCardData || { result: 'ok' });
     }
-    await removePhotoFromCloud(removedCard);
-    return res.status(StatusCodes.ACCEPTED).json({ result: 'ok' });
+    await removePhotoFromCloud(oldCardData);
+    return res.status(StatusCodes.ACCEPTED).json(newCardData || { result: 'ok' });
   } catch (error) {
     return next(error);
   }

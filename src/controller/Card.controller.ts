@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Card } from '../db/entity/Card.entity';
-import AppError from '../errors/AppError';
-import errorMessages from '../errors/errorMessages.json';
 import * as CardServices from '../service/Card.service';
 import { parseCardToResponse } from '../utils/parseCardToResponse';
 import { checkUUIDv4 } from '../utils/uuidCheck';
@@ -18,12 +16,10 @@ export const all = async (request: Request, response: Response, next: NextFuncti
       cardsPage = await CardServices.allSvc(Number(reqPage));
     }
     const parsedCards = cardsPage.cards.map((card) => parseCardToResponse(card));
-    const parsedPageResponse = {
+    return response.status(StatusCodes.OK).json({
       ...cardsPage,
       cards: parsedCards,
-    };
-    response.status(StatusCodes.OK);
-    return response.json(parsedPageResponse);
+    });
   } catch (error) {
     return next(error);
   }
@@ -31,13 +27,9 @@ export const all = async (request: Request, response: Response, next: NextFuncti
 
 export const one = async (request: Request, response: Response, next: NextFunction) => {
   try {
-    if (!checkUUIDv4(request.params.id)) {
-      throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD_ID);
-    } else {
-      const selectedCard = await CardServices.oneSvc(request.params.id);
-      response.status(StatusCodes.OK);
-      return response.json(parseCardToResponse(selectedCard));
-    }
+    checkUUIDv4(request.params.id);
+    const selectedCard = await CardServices.oneSvc(request.params.id);
+    return response.status(StatusCodes.OK).json(parseCardToResponse(selectedCard));
   } catch (error) {
     return next(error);
   }
@@ -45,6 +37,7 @@ export const one = async (request: Request, response: Response, next: NextFuncti
 
 export const save = async (request: Request, response: Response, next: NextFunction) => {
   try {
+    // desestruturamos para não permitir dados não requisitados integrando os cartões
     const { name, company, email, jobTitle, phoneNumber } = request.body as Card;
     const newCard = {
       name,
@@ -55,9 +48,7 @@ export const save = async (request: Request, response: Response, next: NextFunct
       photo: request.file?.path,
     } as Card;
     const createdCard = await CardServices.saveSvc(newCard);
-
-    response.status(StatusCodes.ACCEPTED);
-    return response.json(parseCardToResponse(createdCard));
+    return response.status(StatusCodes.ACCEPTED).json(parseCardToResponse(createdCard));
   } catch (error) {
     return next(error);
   }
@@ -69,17 +60,12 @@ export const remove = async (
   next: NextFunction,
 ) => {
   try {
-    if (!checkUUIDv4(request.params.id)) {
-      throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD_ID);
-    } else {
-      const userToRemove = await CardServices.oneSvc(request.params.id);
-      if (!userToRemove) {
-        throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD_ID);
-      }
-      const removedCard = await CardServices.removeSvc(userToRemove);
-      response.locals.removedCard = removedCard;
-      return next();
-    }
+    checkUUIDv4(request.params.id);
+    const userToRemove = await CardServices.oneSvc(request.params.id);
+    const removedCard = await CardServices.removeSvc(userToRemove);
+    response.locals.oldCardData = removedCard;
+    // deixa o próximo middleware lidar com a remoção do arquivo da nuvem
+    return next();
   } catch (error) {
     return next(error);
   }
@@ -87,26 +73,38 @@ export const remove = async (
 
 export const edit = async (request: Request, response: Response, next: NextFunction) => {
   try {
-    if (!checkUUIDv4(request.params.id)) {
-      throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD_ID);
-    } else {
-      const cardToEdit = await CardServices.oneSvc(request.params.id);
-      if (!cardToEdit) {
-        throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD_ID);
-      }
-      // remove photo e id do body para não permitir a edição via endpoint de edição;
-      const { photo, id, ...secureUpdateInfo } = request.body as Partial<Card>;
-      const cardEditedInfo = await CardServices.editSvc(cardToEdit, secureUpdateInfo);
-      if (!cardEditedInfo.affected) {
-        throw new AppError(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          errorMessages.INTERNAL_ERROR,
-        );
-      }
-      return response
-        .status(StatusCodes.ACCEPTED)
-        .json(parseCardToResponse({ ...cardToEdit, ...secureUpdateInfo }));
-    }
+    checkUUIDv4(request.params.id);
+    const cardToEdit = await CardServices.oneSvc(request.params.id);
+    // remove photo e id do body para não permitir alterações sensíveis nessa rota;
+    const { photo, id, ...secureUpdateInfo } = request.body as Partial<Card>;
+    await CardServices.editSvc(cardToEdit, secureUpdateInfo);
+    return response
+      .status(StatusCodes.ACCEPTED)
+      .json(parseCardToResponse({ ...cardToEdit, ...secureUpdateInfo }));
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const editPhoto = async (
+  request: Request,
+  response: Response,
+  next: NextFunction,
+) => {
+  try {
+    checkUUIDv4(request.params.id);
+    const cardToEditPhoto = await CardServices.oneSvc(request.params.id);
+    const newPhotoField = {
+      photo: request.file?.path || null,
+    };
+    await CardServices.editSvc(cardToEditPhoto, newPhotoField);
+    response.locals.oldCardData = cardToEditPhoto;
+    response.locals.newCardData = parseCardToResponse({
+      ...cardToEditPhoto,
+      ...newPhotoField,
+    });
+    // deixa o próximo middleware lidar com a remoção do arquivo anterior da nuvem
+    return next();
   } catch (error) {
     return next(error);
   }

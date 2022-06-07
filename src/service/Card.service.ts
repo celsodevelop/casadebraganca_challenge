@@ -1,12 +1,19 @@
+import { StatusCodes } from 'http-status-codes';
 import { Card } from '../db/entity/Card.entity';
+import AppError from '../errors/AppError';
 import { CardModel } from '../model/Card.model';
+import errorMessages from '../errors/errorMessages.json';
 
 export const allSvc = async (page: number) => {
   return CardModel.findAllCards(page);
 };
 
 export const oneSvc = async (cardId: string) => {
-  return CardModel.findOneCard(cardId);
+  const selectedCard = await CardModel.findOneCard(cardId);
+  if (!selectedCard) {
+    throw new AppError(StatusCodes.NOT_FOUND, errorMessages.CARD_NOT_FOUND);
+  }
+  return selectedCard;
 };
 
 export const saveSvc = async (card: Card) => {
@@ -14,7 +21,11 @@ export const saveSvc = async (card: Card) => {
 };
 
 export const editSvc = async (card: Card, newInfo: Partial<Card>) => {
-  return CardModel.editCard(card, newInfo);
+  const cardEditedInfo = await CardModel.editCard(card, newInfo);
+  if (!cardEditedInfo.affected) {
+    throw new AppError(StatusCodes.NOT_MODIFIED, errorMessages.CARD_NOT_MODIFIED);
+  }
+  return cardEditedInfo;
 };
 
 export const removeSvc = async (card: Card) => {

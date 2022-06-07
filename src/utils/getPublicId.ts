@@ -7,5 +7,5 @@ const CLOUD_CDB_CHALL_FILENAME_REGEX = 'w+.w+/w+(?=.jpg|.png|.jpeg)';
 
 export const getPhotoCloudinaryPublicId = (card: Card = new Card()) => {
   const filenameRegex = new RegExp(CLOUD_CDB_CHALL_FILENAME_REGEX, 'i');
-  return filenameRegex.exec(card.photo)?.[0] || '';
+  return filenameRegex.exec(card.photo || '')?.[0] || '';
 };
