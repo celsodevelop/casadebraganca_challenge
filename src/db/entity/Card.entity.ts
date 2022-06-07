@@ -11,10 +11,10 @@ export class Card {
   @Column()
   email!: string;
 
-  @Column()
+  @Column({ name: 'phone_number' })
   phoneNumber!: string;
 
-  @Column()
+  @Column({ name: 'job_title' })
   jobTitle!: string;
 
   @Column()
