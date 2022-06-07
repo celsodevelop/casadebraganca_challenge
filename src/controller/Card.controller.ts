@@ -39,24 +39,41 @@ export const one = async (request: Request, response: Response, next: NextFuncti
 
 export const save = async (request: Request, response: Response, next: NextFunction) => {
   try {
-    const { name, company, email, jobTitle, phoneNumber } = request.body;
+    const { name, company, email, jobTitle, phoneNumber } = request.body as Card;
     const newCard = {
-      name, company, email, jobTitle, phoneNumber, photo: request.file?.path
+      name,
+      company,
+      email,
+      jobTitle,
+      phoneNumber,
+      photo: request.file?.path,
     } as Card;
     const createdCard = await CardServices.saveSvc(newCard);
-    response.status(StatusCodes.ACCEPTED)
-    return response.json(createdCard)
+    response.status(StatusCodes.ACCEPTED);
+    return response.json(createdCard);
   } catch (error) {
     return next(error);
   }
 };
 
-// async remove(request: Request, _response: Response, _next: NextFunction) {
-//   if (typeof request.params.id === 'number') {
-//     const userToRemove = await CardRepository.findOneBy(
-// { id: request.params.id });
-//     if (userToRemove) {
-//       await CardRepository.remove(userToRemove);
-//     }
-//   }
-// }
+export const remove = async (
+  request: Request,
+  response: Response,
+  next: NextFunction,
+) => {
+  try {
+    if (!checkUUIDv4(request.params.id)) {
+      throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD_ID);
+    } else {
+      const userToRemove = await CardServices.oneSvc(request.params.id);
+      if (!userToRemove) {
+        throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD_ID);
+      }
+      const removedCard = await CardServices.removeSvc(userToRemove);
+      response.locals.cardToRemove = removedCard;
+      return next();
+    }
+  } catch (error) {
+    return next(error);
+  }
+};

@@ -23,6 +23,7 @@ export const CardRepository = AppDataSource.getRepository(Card).extend({
       where: { id },
     });
     if (!card) {
+      console.log('erro no model: ', card);
       throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD_ID);
     }
     return card;
@@ -39,5 +40,8 @@ export const CardRepository = AppDataSource.getRepository(Card).extend({
     card.jobTitle = newCard.jobTitle;
     card.photo = newCard?.photo;
     return this.save(card);
+  },
+  async removeCard(card: Card) {
+    return this.remove(card);
   },
 });
