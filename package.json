@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules ./src/index.ts",
+    "typeorm": "typeorm-ts-node-esm -d ./src/db/config/data-source.ts",
     "start": "npm run build && node ./dist/index.js",
     "build": "tsc",
     "test": "mocha ./src/tests/**/*$NAME*.{test,spec}.js --exit"
@@ -14,7 +15,9 @@
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.13",
+    "@types/multer": "^1.4.7",
     "@types/node": "^17.0.38",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.27.0",
     "@typescript-eslint/parser": "^5.27.0",
     "chai": "^4.3.6",
@@ -37,11 +40,19 @@
     "typescript": "^4.7.2"
   },
   "dependencies": {
+    "@fast-csv/parse": "^4.3.6",
     "ajv": "^8.11.0",
     "ajv-errors": "^3.0.0",
     "body-parser": "^1.20.0",
+    "cloudinary": "^1.30.0",
     "express": "^4.18.1",
-    "http-status-codes": "^2.2.0"
+    "http-status-codes": "^2.2.0",
+    "multer": "^1.4.4-lts.1",
+    "multer-storage-cloudinary": "^4.0.0",
+    "pg": "^8.7.3",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.3.6",
+    "uuid": "^8.3.2"
   },
   "private": true
 }

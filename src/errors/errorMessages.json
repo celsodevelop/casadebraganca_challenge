@@ -1,0 +1,10 @@
+{
+  "INTERNAL_ERROR": "Sorry, An Internal error have been occurred.",
+  "INVALID_PAGE": "Sorry, you have entered a invalid page number",
+  "UNHANDLED_REJECTION": "There was an unhandled rejection",
+  "INVALID_CARD_ID": "Sorry, you have entered a invalid id",
+  "CARD_NOT_FOUND": "Sorry, card not found",
+  "CARD_NOT_MODIFIED": "Sorry, card can't be modified",
+  "INVALID_CARD": "Sorry, invalid card data",
+  "UNCAUGHT_EXCEPTION": "There was an uncaught error"
+}
