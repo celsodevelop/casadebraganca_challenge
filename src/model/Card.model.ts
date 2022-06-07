@@ -6,7 +6,7 @@ import errorMessages from '../errors/errorMessages.json';
 
 const RESULTS_PER_PAGE = 20;
 
-export const CardRepository = AppDataSource.getRepository(Card).extend({
+export const CardModel = AppDataSource.getRepository(Card).extend({
   async findAllCards(page = 0) {
     const fromIdxItem = RESULTS_PER_PAGE * page;
     const [cards, total] = await this.findAndCount({
@@ -48,6 +48,9 @@ export const CardRepository = AppDataSource.getRepository(Card).extend({
     card.jobTitle = newCard.jobTitle;
     card.photo = newCard?.photo;
     return this.save(card);
+  },
+  async editCard(card: Card, newInfo: Partial<Card>) {
+    return this.update(card.id, newInfo);
   },
   async removeCard(card: Card) {
     return this.remove(card);

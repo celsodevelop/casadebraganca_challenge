@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { Card } from '../db/entity/Card.entity';
 import AppError from '../errors/AppError';
 import errorMessages from '../errors/errorMessages.json';
-import * as CardServices from '../service/Card.services';
+import * as CardServices from '../service/Card.service';
 import { parseCardToResponse } from '../utils/parseCardToResponse';
 import { checkUUIDv4 } from '../utils/uuidCheck';
 
@@ -18,12 +18,12 @@ export const all = async (request: Request, response: Response, next: NextFuncti
       cardsPage = await CardServices.allSvc(Number(reqPage));
     }
     const parsedCards = cardsPage.cards.map((card) => parseCardToResponse(card));
-    const parsedResponse = {
+    const parsedPageResponse = {
       ...cardsPage,
       cards: parsedCards,
     };
     response.status(StatusCodes.OK);
-    return response.json(parsedResponse);
+    return response.json(parsedPageResponse);
   } catch (error) {
     return next(error);
   }
@@ -79,6 +79,33 @@ export const remove = async (
       const removedCard = await CardServices.removeSvc(userToRemove);
       response.locals.removedCard = removedCard;
       return next();
+    }
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const edit = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    if (!checkUUIDv4(request.params.id)) {
+      throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD_ID);
+    } else {
+      const cardToEdit = await CardServices.oneSvc(request.params.id);
+      if (!cardToEdit) {
+        throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD_ID);
+      }
+      // remove photo e id do body para não permitir a edição via endpoint de edição;
+      const { photo, id, ...secureUpdateInfo } = request.body as Partial<Card>;
+      const cardEditedInfo = await CardServices.editSvc(cardToEdit, secureUpdateInfo);
+      if (!cardEditedInfo.affected) {
+        throw new AppError(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          errorMessages.INTERNAL_ERROR,
+        );
+      }
+      return response
+        .status(StatusCodes.ACCEPTED)
+        .json(parseCardToResponse({ ...cardToEdit, ...secureUpdateInfo }));
     }
   } catch (error) {
     return next(error);

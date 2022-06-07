@@ -9,6 +9,7 @@ const router = Router();
 router.get('/', CardController.all);
 router.get('/:id', CardController.one);
 router.post('/', uploadCardPhoto.single('card-image'), CardController.save);
+router.put('/:id', CardController.edit);
 router.delete('/:id', CardController.remove, removePhoto);
 
 export default router;
