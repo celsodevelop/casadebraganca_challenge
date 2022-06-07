@@ -1,7 +1,8 @@
-const UUIDV4regex =
-  // eslint-disable-next-line max-len
-  /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+import { validate, version } from 'uuid';
 
 export const checkUUIDv4 = (uuid: string) => {
-  return UUIDV4regex.test(uuid);
+  if (typeof uuid !== 'string') {
+    return false;
+  }
+  return validate(uuid) && version(uuid) === 4;
 };
