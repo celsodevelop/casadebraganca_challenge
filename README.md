@@ -27,7 +27,7 @@ Proposto por: <a href="http://www.casadebraganca.com/">Casa de Bragança Martech
   - cadastrar e administrar cartões de visitas com fotos na nuvem;
   - cadastrar cartões de visita em lote via CSV.
 
-      A arquitetura foi pensada tendo em vista o padrão `Model-Service-Controller` (MVC). Optou-se pela utilização do banco de dados `postgres` acoplado a ferramenta de ORM: `TypeORM`. Há tratamento central de erros em middleware próprio com classes personalizadas de erros para uso ao longo do fluxo de execução. Utilizou-se o upload do arquivo de foto em nuvem `Cloudinary` e armazenamento da url no banco de dados. Cuidados de segurança foram implementados como: contra ataques de injection nos inputs de dados; Os nomes dos arquivos e ids seguem um padrao uuid.v4 evitando a colisão de nomes e o abuso de nomes sequenciais; O servidor em produção pode utilizar o `nginx` como proxy reverso para permitir a comunicação via `https`.
+      A arquitetura foi pensada tendo em vista o padrão `Model-Service-Controller` (MVC). Optou-se pela utilização do banco de dados `postgres` acoplado a ferramenta de ORM: `TypeORM`. Há tratamento central de erros em middleware próprio com classes personalizadas de erros para uso ao longo do fluxo de execução. Utilizou-se o upload do arquivo de foto em nuvem `Cloudinary` e armazenamento da url no banco de dados. Cuidados de segurança foram implementados como: contra ataques de injection nos inputs de dados; Os nomes dos arquivos e ids seguem um padrao uuid.v4 evitando a colisão de nomes e o abuso de nomes sequenciais; O servidor em produção pode utilizar o `nginx` como proxy reverso para permitir a comunicação via `https`. O ambiente docker foi configurado sem root, portanto há uma mitigação de danos em eventual vulnerabiliades zero-day.
 
 ---
 
@@ -36,10 +36,10 @@ Proposto por: <a href="http://www.casadebraganca.com/">Casa de Bragança Martech
 ### Ambiente desenvolvimento Docker
 <br/>
 
-  - Crie os volumes `*cdb-node`(armazena node_modules) e `*cdb-data`(persistencia do banco local) com `docker volume create --name=${*nomes dos volumes}`
-  - Renomeie e altere os valores das variáveis de ambiente do `Cloudinary` no arquivo `.env.sample`
+  - Crie os volumes `*cdb-node_modules`(armazena node_modules) e `*cdb-data`(persistencia do banco local) com `docker volume create --name=${*nomes dos volumes}`;
+  - Renomeie e altere os valores das variáveis de ambiente do `Cloudinary` no arquivo `.env.sample` com sua configuração;
   - Você pode rodar o comando `docker-compose up` na raiz. Na primeira execução, o comando vai fazer o build da imagem o que pode levar alguns minutos, após utilize apenas esse comando para rodar seu ambiente de desenvolvimento nas próximas execuções;
-  - Na primeira execução, entre no bash do docker executando em outra sessão de terminal o comando `docker exec -it cdb-node bash` e então execute as migrations para criar a estrutura do banco com `npm run typeorm -- migrations:run`.
+  - Na primeira execução, entre no bash do docker executando em outra sessão de terminal o comando `docker exec -it cdbrag-node bash` e então execute as migrations para criar a estrutura do banco com `npm run typeorm -- migrations:run`;
   - A API em modo desenvolvimento está pronta para uso via `localhost:5000`.
 
 <br/>
