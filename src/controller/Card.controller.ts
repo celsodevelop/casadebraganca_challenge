@@ -77,7 +77,7 @@ export const remove = async (
         throw new AppError(StatusCodes.BAD_REQUEST, errorMessages.INVALID_CARD_ID);
       }
       const removedCard = await CardServices.removeSvc(userToRemove);
-      response.locals.cardToRemove = removedCard;
+      response.locals.removedCard = removedCard;
       return next();
     }
   } catch (error) {
