@@ -51,14 +51,13 @@ Proposto por: <a href="http://www.casadebraganca.com/">Casa de Bragança Martech
 
  Abaixo um exemplo do modelo do contrato encontrado nas rotas disponíveis:
 
-- Rota `Card.routes.ts`
+---
+   ### >> 1. Cria novo cartão
 
-    PUT /cards
-
-  - Salvar novo cartão
-
+      POST /cards
 
 - Request
+
      ```javascript
     {
       "name": "testName",
@@ -66,20 +65,166 @@ Proposto por: <a href="http://www.casadebraganca.com/">Casa de Bragança Martech
       "company": "testCompany",
       "jobTitle": "testJobTitle",
       "phoneNumber": "+55123456789",
+      "card-image"@example.jpg // multipart/form-data
     }
     ```
-- Response
+- Response code: <strong>201 Created</strong>
+
+    ```javascript
+    {
+      "company": "testCompany",
+      "email": "test@test.com",
+      "id": "57fdfc8e-cb9d-4011-a3c2-0052124f86af",
+      "job_title": "testJobTitle",
+      "name": "testName",
+      "phone_number": "+55123456789",
+      "photo": "https://bucket.cloudprovider/aerag79aa0ulbo.jpeg"
+    }
+    ```
+---
+   ### >> 2. Visualiza cartões
+
+      GET /cards/?page=2
+
+- Response code: <strong>200 OK</strong>
+    ```javascript
+    {
+      "cards": [
+          {
+              "company": "testCompany",
+              "email": "test2@test.com",
+              "id": "57fdfc8e-cb9d-4011-a3c2-0052124f86af",
+              "job_title": "testJob",
+              "name": "test",
+              "phone_number": "+55test123",
+              "photo": null
+          }
+      ],
+      "page_info": {
+          "last_page": 2,
+          "page_last_idx_item": 21,
+          "results_per_page": 20,
+          "total_cards": 21
+      }
+    }
+    ```
+---
+   ### >> 3. Visualiza detalhes de um cartão
+
+      GET /cards/:id
+
+- Response code: <strong>200 OK</strong>
     ```javascript
     {
       "company": "testCompany",
       "email": "test2@test.com",
-      "id": "57fdfc8e-cb9d-4011-a3c2-0052124f86af",
+      "id": "80d06251-3f94-4dee-bd9d-cc0f36da0a68",
       "job_title": "testJob",
       "name": "test",
       "phone_number": "+55test123",
       "photo": null
     }
     ```
+---
+   ### >> 4. Importa CSV de cartoes
+
+      PUT /cards/csv
+- Request
+
+     ```javascript
+    {
+      "csv-file"@"sample.csv" // multipart/form-data,
+    }
+    ```
+
+- Response code: <strong>202 Accepted</strong>
+    ```javascript
+     [
+        {
+        "company": "testCompany",
+        "email": "editedTest@test.com",
+        "id": "80d06251-3f95-4dee-bd9d-cc0f36da0a68",
+        "job_title": "testJob",
+        "name": "test",
+        "phone_number": "+55test123",
+        "photo": "https://recent.uploaded/efaamvcp761g4ta.jpeg"
+      },
+      {
+        "company": "testCompany",
+        "email": "editedTest@test.com",
+        "id": "80d06251-3f94-4dee-bd9d-cc0f36da0a68",
+        "job_title": "testJob",
+        "name": "test",
+        "phone_number": "+55test123",
+        "photo": "https://more.recent.uploaded/efaamvcp761g4ta.jpeg"
+      }
+    ]
+    ```
+---
+   ### >> 5. Edita dados do cartão
+
+      PUT /cards/:id
+- Request
+
+     ```javascript
+    {
+      "email": editedMail@test.com // multipart/form-data
+    }
+    ```
+
+- Response code: <strong>202 Accepted</strong>
+
+  ```javascript
+    {
+      "company": "testCompany",
+      "email": "editedMail@test.com",
+      "id": "80d06251-3f94-4dee-bd9d-cc0f36da0a68",
+      "job_title": "testJob",
+      "name": "test",
+      "phone_number": "+55test123",
+      "photo": null
+    }
+  ```
+---
+---
+   ### >> 6. Edita foto do cartão
+
+      PUT /cards/:id/photo
+- Request
+
+     ```javascript
+    {
+      "card-image"@"card_img_example.png" // multipart/form-data
+    }
+    ```
+
+- Response code: <strong>202 Accepted</strong>
+
+  ```javascript
+      {
+        "company": "testCompany",
+        "email": "editedMail@test.com",
+        "id": "80d06251-3f94-4dee-bd9d-cc0f36da0a68",
+        "job_title": "testJob",
+        "name": "test",
+        "phone_number": "+55test123",
+        "photo": "https://evenmore.recent.uploaded/efaamvcp761g4ta.jpeg"
+      }
+    ```
+---
+  ### >> 7. Deleta cartão por id
+
+      DELETE /cards/:id
+
+- Response code: <strong>202 Accepted</strong>
+
+    ```javascript
+    {
+      "result": "ok"
+    }
+    ```
+
+---
 
 Nas rotas onde há a necessidade de upload de arquivos utilize como o nome do campo `multpart-formdata` para o arquivo da seguinte forma:
 
@@ -91,7 +236,7 @@ Nas rotas onde há a necessidade de upload de arquivos utilize como o nome do ca
 
 ## O que faltou?
 
-Seria interessante a criação de testes ao longo do processo de desenvolvimento. Deveria-se fazer no mínimo um teste de integração. O teste cobrindo os casos mais críticos de uso ajudariam no desenvolvimento mais fluido de novas features.
+Seria interessante a criação de testes ao longo do processo de desenvolvimento. Teríamos melhor produtividade a longo prazo possuindo mais testes a partir do primeiro teste de integração. O teste cobrindo os casos mais críticos de uso ajudariam no desenvolvimento mais fluido de novas features.
 
 ---
 

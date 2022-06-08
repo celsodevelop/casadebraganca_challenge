@@ -53,7 +53,7 @@ export const save = async (request: Request, response: Response, next: NextFunct
       photo: request.file?.path,
     } as Card;
     const createdCard = (await CardServices.saveSvc(newCard)) as Card;
-    return response.status(StatusCodes.ACCEPTED).json(parseCardToResponse(createdCard));
+    return response.status(StatusCodes.CREATED).json(parseCardToResponse(createdCard));
   } catch (error) {
     return next(error);
   }
