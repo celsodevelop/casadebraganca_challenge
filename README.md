@@ -36,7 +36,7 @@ Proposto por: <a href="http://www.casadebraganca.com/">Casa de Bragança Martech
 ### Ambiente desenvolvimento Docker
 <br/>
 
-  - Crie os volumes `*cdb-node_modules`(armazena node_modules) e `*cdb-data`(persistencia do banco local) com `docker volume create --name=${*nomes dos volumes}`;
+  - Crie os volumes `cdb-node_modules`(armazena node_modules) e `cdb-data`(persistencia do banco local) com `docker volume create --name=${nomes dos volumes}`;
   - Renomeie e altere os valores das variáveis de ambiente do `Cloudinary` no arquivo `.env.sample` com sua configuração;
   - Você pode rodar o comando `docker-compose up` na raiz. Na primeira execução, o comando vai fazer o build da imagem o que pode levar alguns minutos, após utilize apenas esse comando para rodar seu ambiente de desenvolvimento nas próximas execuções;
   - Na primeira execução, entre no bash do docker executando em outra sessão de terminal o comando `docker exec -it cdbrag-node bash` e então execute as migrations para criar a estrutura do banco com `npm run typeorm -- migrations:run`;
