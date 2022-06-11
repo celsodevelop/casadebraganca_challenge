@@ -1,15 +1,18 @@
+import express, { NextFunction, Request, Response } from 'express';
 import bodyParser from 'body-parser';
-import express, { NextFunction, Request, Response, Application } from 'express';
 import { AppDataSource } from './db/config/data-source';
 import Routes from './routes';
 import startServer from './bin/server';
 import errorMiddleware from './middlewares/errorMiddleware';
 
-export default AppDataSource.initialize()
-  .then(() => {
-    // CREATE EXPRESS APP
-    const app = express();
-
+// CREATE EXPRESS APP
+export const app = express();
+export async function startDataSourceThenServer(): Promise<void> {
+  try {
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize();
+      return await startDataSourceThenServer();
+    }
     // SETUP
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
@@ -23,13 +26,24 @@ export default AppDataSource.initialize()
     });
 
     // REGISTER ROUTES
-    app.use('/cards', Routes.card)
+    app.use('/cards', Routes.card);
 
     // ERROR MIDDLEWARE
 
     app.use(errorMiddleware);
 
     // START EXPRESS SERVER
-    startServer(app);
-  })
-  .catch((err) => console.log('Error at database connection: ', err));
+    return startServer(app);
+  } catch (error) {
+    if (!AppDataSource.isInitialized) {
+      console.error('Error starting data source: ', error);
+      await AppDataSource.initialize();
+      return startDataSourceThenServer();
+    }
+    return console.error('Error with started data source: ', error);
+  }
+}
+
+if (process.env.NODE_ENV !== 'test') {
+  startDataSourceThenServer().catch((err) => console.error(err));
+}
