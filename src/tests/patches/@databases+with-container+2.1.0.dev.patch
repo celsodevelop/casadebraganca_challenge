@@ -1,0 +1,83 @@
+diff --git a/node_modules/@databases/with-container/lib/index.js b/node_modules/@databases/with-container/lib/index.js
+index 3d5b933..a2cda81 100644
+--- a/node_modules/@databases/with-container/lib/index.js
++++ b/node_modules/@databases/with-container/lib/index.js
+@@ -30,8 +30,9 @@ async function pullDockerImage(options) {
+     if (!options.refreshImage &&
+         /.+\:.+/.test(options.image) &&
+         (await imageExists(options))) {
+-        console.warn(options.image +
+-            ' already pulled (use mysql-test start --refresh or ops.refreshImage to refresh)');
++        // Implements modifications to better read console
++        // it arises information about postgree image version
++        console.warn('Test DB image version: ', options.image);
+         return;
+     }
+     console.warn('Pulling Docker Image ' + options.image);
+@@ -49,12 +50,18 @@ function startDockerContainer(options) {
+     });
+     return spawn('docker', [
+         'run',
++        ...(
++          process.env.PG_TEST_APP_DOCKER_NETWORK
++        ? ['--network', process.env.PG_TEST_APP_DOCKER_NETWORK]
++        : ''
++        ), // Implements network option to test container
+         '--name',
+         options.containerName,
+         '-t',
+         '--rm',
+-        '-p',
+-        `${options.externalPort}:${options.internalPort}`,
++        // '-p',
++        // `${options.externalPort}:${process.env.PG_TEST_PORT || options.internalPort}`,
++        // Not used when it is at the same network
+         ...(options.detached ? ['--detach'] : []),
+         // set enviornment variables
+         ...envArgs,
+@@ -67,6 +74,7 @@ exports.startDockerContainer = startDockerContainer;
+ async function waitForDatabaseToStart(options) {
+     await new Promise((resolve, reject) => {
+         let finished = false;
++        let firstMessageView = true
+         const timeout = setTimeout(() => {
+             finished = true;
+             reject(new Error(`Unable to connect to database after ${options.connectTimeoutSeconds} seconds.${options.enableDebugInstructions
+@@ -74,7 +82,11 @@ async function waitForDatabaseToStart(options) {
+                 : ``}`));
+         }, options.connectTimeoutSeconds * 1000);
+         function test() {
+-            console.warn(`Waiting for ${options.containerName} on port ${options.externalPort}...`);
++            if (firstMessageView) {
++              // Clean up the test console
++              console.warn(`Waiting for ${options.containerName} on port ${options.externalPort} for ${options.connectTimeoutSeconds}s...`)
++              firstMessageView = false;
++            }
+             (options.testConnection
+                 ? options.testConnection({
+                     ...options,
+@@ -101,8 +113,12 @@ async function waitForDatabaseToStart(options) {
+ exports.waitForDatabaseToStart = waitForDatabaseToStart;
+ async function testConnection(options) {
+     return new Promise((resolve) => {
+-        const connection = (0, net_1.connect)(options.externalPort)
+-            .on('error', () => {
++        const connection = net_1.connect({
++          // Implements network option then don't expose ports
++          host: process.env.PG_TEST_CONTAINER_NAME || 'localhost',
++          port: process.env.PG_TEST_PORT || '5432'
++        })
++            .on('error', (err) => {
+             resolve(false);
+         })
+             .on('connect', () => {
+@@ -135,7 +151,8 @@ async function startContainer(options) {
+         ...rawOptions,
+         externalPort,
+     };
+-    console.warn('Starting Docker Container ' + opts.containerName);
++    // Clarifying to test user
++    console.warn('Starting Background Docker Container ' + opts.containerName);
+     const proc = startDockerContainer(opts);
+     await waitForDatabaseToStart(opts);
+     return {
