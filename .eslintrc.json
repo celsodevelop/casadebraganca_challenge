@@ -29,6 +29,26 @@
     ],
     "rules": {
       "max-len": [ "error", { "code": 90 }],
-      "import/prefer-default-export": 0
-    }
+      "import/no-extraneous-dependencies": ["error", {"devDependencies": ["**/tests/**/*.ts", "**/tests/**/*.spec.ts"]}],
+      "import/prefer-default-export": 0,
+      "no-console": 0
+    },
+    "overrides": [
+      {
+        // Config for test files
+        "files": ["**/tests/**/*.spec.ts"],
+        "rules": {
+          "sonarjs/no-identical-functions": 0,
+          "@typescript-eslint/no-unused-expressions": 0,
+          "func-names": 0
+        }
+      },
+      {
+        // Config for TypeORM DataSource share style
+        "files": ["**/model/**/*.ts"],
+        "rules": {
+          "import/no-cycle": 0
+        }
+      }
+    ]
 }

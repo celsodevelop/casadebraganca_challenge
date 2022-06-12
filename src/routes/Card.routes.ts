@@ -19,5 +19,5 @@ router.put(
   removePhoto,
 );
 router.delete('/:id', CardController.remove, removePhoto);
-
-export default router;
+const CardRouter = router;
+export const CardRoutes = { CardRouter };

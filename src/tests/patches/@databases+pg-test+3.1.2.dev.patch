@@ -1,0 +1,14 @@
+diff --git a/node_modules/@databases/pg-test/lib/index.js b/node_modules/@databases/pg-test/lib/index.js
+index fe29469..2458b03 100644
+--- a/node_modules/@databases/pg-test/lib/index.js
++++ b/node_modules/@databases/pg-test/lib/index.js
+@@ -67,7 +67,8 @@ async function getDatabase(options = {}) {
+             });
+         },
+     });
+-    const databaseURL = `postgres://${pgUser}@localhost:${externalPort}/${pgDb}`;
++    const hostname = process.env.PG_TEST_APP_DOCKER_NETWORK ? process.env.PG_TEST_CONTAINER_NAME : 'localhost'
++    const databaseURL = `postgres://${pgUser}@${hostname}:${externalPort}/${pgDb}`;
+     return {
+         proc,
+         databaseURL,

@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  node-pg-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cdbrag-test-node
+    command: npm run test
+    env_file: .env.test
+    volumes:
+      - .:/home/node/app
+      - /var/run/docker.sock:/var/run/docker.sock
+      - cdb-node_modules:/home/node/app/node_modules
+    networks:
+      - app
+    environment:
+      - NODE_ENV=test
+    working_dir: /home/node/app
+volumes:
+  cdb-node_modules:
+    external: true
+networks:
+  app:
+    name: app

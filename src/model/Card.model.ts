@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
+
 import { AppDataSource } from '../db/config/data-source';
 import { Card } from '../db/entity/Card.entity';
 import AppError from '../errors/AppError';
@@ -6,7 +7,7 @@ import errorMessages from '../errors/errorMessages.json';
 
 const RESULTS_PER_PAGE = 20;
 
-export const CardModel = AppDataSource.getRepository(Card).extend({
+export const CardModel = AppDataSource.getRepository<Card>('Card').extend({
   async findAllCards(page = 0) {
     const fromIdxItem = RESULTS_PER_PAGE * page;
     const [cards, total] = await this.findAndCount({

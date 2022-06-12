@@ -20,22 +20,15 @@ services:
       - app
     environment:
       - NODE_ENV=development
-      - POSTGRES_HOSTNAME=postgres
     working_dir: /home/node/app
   postgres:
-    image: postgres
+    image: postgres:14.3
     container_name: cdbrag-postgres
     volumes:
       - cdb-data:/data
-    ports:
-      - "5432:5432"
     networks:
       - app
-    environment:
-      - POSTGRES_USER=cdb_dev
-      - POSTGRES_PASSWORD=cdb_Dev@User
-      - POSTGRES_HOSTNAME=postgres
-      - POSTGRES_DB=cdbrag-db
+    env_file: .env
 volumes:
   cdb-data:
     external: true

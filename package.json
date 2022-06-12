@@ -4,19 +4,29 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules ./src/index.ts",
+    "postinstall": "patch-package --patch-dir ./src/tests/patches",
+    "dev": "npm run typeorm:migrations:run && ts-node-dev --inspect --transpile-only --ignore-watch node_modules ./src/app/app.ts",
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' ts-mocha src/tests/**/*.spec.ts --exit",
+    "typeorm:migrations:run": "npm run typeorm -- migration:run",
+    "typeorm:test:migrations:run": "npm run typeorm:test -- migration:run",
+    "typeorm:test": "typeorm-ts-node-esm -d ./src/tests/test-config/test-data-source.ts",
     "typeorm": "typeorm-ts-node-esm -d ./src/db/config/data-source.ts",
-    "start": "npm run build && node ./dist/index.js",
+    "lint": "eslint . --ext .ts",
     "build": "tsc",
-    "test": "mocha ./src/tests/**/*$NAME*.{test,spec}.js --exit"
+    "start": "npm run build && node ./dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@faker-js/faker": "^7.2.0",
+    "@types/chai": "^4.3.1",
     "@types/express": "^4.17.13",
+    "@types/mocha": "^9.1.1",
     "@types/multer": "^1.4.7",
     "@types/node": "^17.0.38",
+    "@types/proxyquire": "^1.3.28",
+    "@types/sinon": "^10.0.11",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.27.0",
     "@typescript-eslint/parser": "^5.27.0",
@@ -33,16 +43,17 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-sonarjs": "^0.13.0",
     "mocha": "^10.0.0",
+    "patch-package": "^6.4.7",
     "prettier": "^2.6.2",
+    "proxyquire": "^2.1.3",
     "sinon": "^14.0.0",
-    "sinon-chai": "^3.7.0",
+    "ts-mocha": "^10.0.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.7.2"
   },
   "dependencies": {
+    "@databases/pg-test": "^3.1.2",
     "@fast-csv/parse": "^4.3.6",
-    "ajv": "^8.11.0",
-    "ajv-errors": "^3.0.0",
     "body-parser": "^1.20.0",
     "cloudinary": "^1.30.0",
     "express": "^4.18.1",
@@ -53,6 +64,15 @@
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.3.6",
     "uuid": "^8.3.2"
+  },
+  "pg": {
+    "test": {
+      "migrationsScript": [
+        "npm",
+        "run",
+        "typeorm:test:migrations:run"
+      ]
+    }
   },
   "private": true
 }
