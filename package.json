@@ -5,14 +5,14 @@
   "main": "dist/index.js",
   "scripts": {
     "postinstall": "patch-package --patch-dir ./src/tests/patches",
-    "dev": "npm run typeorm:migrations:run && ts-node-dev --inspect --transpile-only --ignore-watch node_modules ./src/index.ts",
+    "dev": "npm run typeorm:migrations:run && ts-node-dev --inspect --transpile-only --ignore-watch node_modules ./src/app/app.ts",
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' ts-mocha src/tests/**/*.spec.ts --exit",
     "typeorm:migrations:run": "npm run typeorm -- migration:run",
-    "typeorm": "typeorm-ts-node-esm -d ./src/db/config/data-source.ts",
-    "typeorm:test": "typeorm-ts-node-esm -d ./src/tests/config/test-data-source.ts",
     "typeorm:test:migrations:run": "npm run typeorm:test -- migration:run",
-    "start": "npm run build && node ./dist/index.js",
+    "typeorm:test": "typeorm-ts-node-esm -d ./src/tests/test-config/test-data-source.ts",
+    "typeorm": "typeorm-ts-node-esm -d ./src/db/config/data-source.ts",
     "build": "tsc",
-    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' ts-mocha src/tests/**/*.spec.ts --exit"
+    "start": "npm run build && node ./dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -64,6 +64,15 @@
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.3.6",
     "uuid": "^8.3.2"
+  },
+  "pg": {
+    "test": {
+      "migrationsScript": [
+        "npm",
+        "run",
+        "typeorm:test:migrations:run"
+      ]
+    }
   },
   "private": true
 }
