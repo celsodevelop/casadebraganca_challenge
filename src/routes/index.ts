@@ -1,5 +1,3 @@
-import card from './Card.routes';
+import { CardRoutes } from './Card.routes';
 
-export default {
-  card,
-};
+export const Routes = { CardRouter: CardRoutes.CardRouter };
