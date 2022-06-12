@@ -11,6 +11,7 @@
     "typeorm:test:migrations:run": "npm run typeorm:test -- migration:run",
     "typeorm:test": "typeorm-ts-node-esm -d ./src/tests/test-config/test-data-source.ts",
     "typeorm": "typeorm-ts-node-esm -d ./src/db/config/data-source.ts",
+    "lint": "eslint . --ext .ts",
     "build": "tsc",
     "start": "npm run build && node ./dist/index.js"
   },
@@ -20,7 +21,6 @@
   "devDependencies": {
     "@faker-js/faker": "^7.2.0",
     "@types/chai": "^4.3.1",
-    "@types/expect": "^24.3.0",
     "@types/express": "^4.17.13",
     "@types/mocha": "^9.1.1",
     "@types/multer": "^1.4.7",
